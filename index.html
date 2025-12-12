@@ -552,7 +552,7 @@
       renderHand(dealerHandEl, dealerHand, hideDealerHole && !gameOver);
 
       const pTotal = handPoint(playerHand);
-      let dTotal = hideDealerHole && !gameOver
+      let dTotal = hideDealerHole && !gameOver && dealerHand.length > 0
         ? cardPoint(dealerHand[0]) // 只顯示第一張估計
         : handPoint(dealerHand);
 
@@ -569,7 +569,9 @@
 
     function playerHit() {
       if (gameOver) return;
-      playerHand.push(dealOne());
+      const card = dealOne();
+      if (!card) return; // Deck exhausted (should never happen in normal play)
+      playerHand.push(card);
       const pTotal = handPoint(playerHand);
       if (pTotal > 10.5) {
         // 玩家爆
@@ -590,7 +592,9 @@
       let pTotal = handPoint(playerHand);
       let dTotal = handPoint(dealerHand);
       while (dTotal < 7 || (dTotal < pTotal && dTotal <= 10.5 && pTotal <= 10.5)) {
-        dealerHand.push(dealOne());
+        const card = dealOne();
+        if (!card) break; // Deck exhausted (should never happen in normal play)
+        dealerHand.push(card);
         dTotal = handPoint(dealerHand);
       }
       gameOver = true;
