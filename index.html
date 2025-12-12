@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>10 點半撲克牌 Demo（單檔）</title>
+  <style>
+    :root {
+      --table:#14532d;
+      --table-dark:#022c22;
+      --card-bg:#f9fafb;
+      --card-border:#111827;
+      --muted:#9ca3af;
+      --accent:#22c55e;
+      --accent2:#38bdf8;
+      --danger:#f97373;
+      --danger2:#ef4444;
+      --shadow:0 16px 40px rgba(0,0,0,0.6);
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans CJK TC","Helvetica Neue",Arial;
+      background:
+        radial-gradient(circle at top left,#22c55e55,transparent 55%),
+        radial-gradient(circle at bottom right,#22d3ee55,transparent 55%),
+        linear-gradient(180deg,#022c22,#052e16);
+      color:#e5e7eb;
+      min-height:100vh;
+    }
+    .container{
+      max-width:960px;
+      margin:24px auto;
+      padding:18px 16px 26px;
+      background:radial-gradient(circle at top,#166534,#022c22);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(22,163,74,0.6);
+      position:relative;
+      overflow:hidden;
+    }
+    .container::before{
+      content:"";
+      position:absolute;
+      inset:-30%;
+      background:
+        radial-gradient(circle at 15% 0,#22c55e44,transparent 55%),
+        radial-gradient(circle at 85% 100%,#bef26433,transparent 60%);
+      opacity:0.9;
+      pointer-events:none;
+    }
+    .content{
+      position:relative;
+      z-index:1;
+    }
+    h1{
+      margin:0 0 4px;
+      font-size:22px;
+      background:linear-gradient(90deg,#bbf7d0,#facc15,#fdba74);
+      -webkit-background-clip:text;
+      color:transparent;
+    }
+    p.lead{
+      margin:0 0 12px;
+      font-size:13px;
+      color:#d1fae5;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:3px 10px;
+      border-radius:999px;
+      border:1px solid rgba(34,197,94,0.7);
+      background:rgba(6,78,59,0.9);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:#bbf7d0;
+      margin-bottom:8px;
+    }
+    .chip span.dot{
+      width:7px;height:7px;border-radius:50%;background:#4ade80;
+    }
+
+    .top-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      align-items:flex-end;
+      margin-bottom:12px;
+    }
+    label{
+      display:flex;
+      flex-direction:column;
+      font-size:12px;
+      color:#d1fae5;
+      gap:4px;
+    }
+    input[type="text"]{
+      padding:6px 9px;
+      border-radius:10px;
+      border:1px solid rgba(22,163,74,0.8);
+      background:rgba(6,78,59,0.9);
+      color:#ecfdf5;
+      font-size:13px;
+      outline:none;
+      min-width:170px;
+    }
+    input[type="text"]:focus{
+      border-color:#22c55e;
+      box-shadow:0 0 0 1px rgba(34,197,94,0.7);
+      background:#022c22;
+    }
+    button{
+      padding:8px 14px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:#022c22;
+      background:linear-gradient(135deg,#22c55e,#4ade80);
+      box-shadow:0 10px 22px rgba(21,128,61,0.7);
+      transition:transform .12s, box-shadow .12s, filter .12s;
+      white-space:nowrap;
+    }
+    button:hover{
+      filter:brightness(1.05);
+      transform:translateY(-1px);
+      box-shadow:0 16px 30px rgba(21,128,61,0.85);
+    }
+    button:active{
+      transform:translateY(0);
+      box-shadow:0 6px 14px rgba(6,95,70,0.9);
+    }
+    button.secondary{
+      background:linear-gradient(135deg,#0f172a,#020617);
+      color:#e5e7eb;
+      border:1px solid rgba(148,163,184,0.7);
+      box-shadow:none;
+    }
+    button.secondary:hover{
+      box-shadow:0 10px 22px rgba(15,23,42,0.9);
+    }
+    button.danger{
+      background:linear-gradient(135deg,#ef4444,#fb7185);
+      color:#fef2f2;
+      box-shadow:0 10px 22px rgba(220,38,38,0.8);
+    }
+
+    .status-bar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      font-size:12px;
+      color:#bbf7d0;
+      margin-bottom:8px;
+    }
+    .pill{
+      padding:3px 9px;
+      border-radius:999px;
+      border:1px solid rgba(22,163,74,0.7);
+      background:rgba(6,78,59,0.9);
+      display:inline-flex;
+      gap:4px;
+      align-items:center;
+    }
+    .pill span.label{color:#a7f3d0;}
+    .pill span.value{font-weight:600;}
+
+    .table-area{
+      margin-top:4px;
+      padding:12px;
+      border-radius:16px;
+      background:radial-gradient(circle at top,#16a34a,#052e16);
+      border:2px solid #14532d;
+      box-shadow:inset 0 0 0 1px rgba(15,118,110,0.6);
+    }
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:8px;
+    }
+    .row-header{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:14px;
+      color:#f9fafb;
+    }
+    .tag-dealer{
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:11px;
+      background:rgba(37,99,235,0.15);
+      border:1px solid rgba(59,130,246,0.7);
+      color:#bfdbfe;
+    }
+    .tag-player{
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:11px;
+      background:rgba(34,197,94,0.15);
+      border:1px solid rgba(34,197,94,0.7);
+      color:#bbf7d0;
+    }
+
+    .hand{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      min-height:120px;
+      align-items:flex-start;
+    }
+
+    .card{
+      width:70px;
+      height:96px;
+      background:var(--card-bg);
+      border-radius:10px;
+      border:2px solid var(--card-border);
+      box-shadow:0 8px 16px rgba(0,0,0,0.7);
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:5px 6px;
+      color:#111827;
+    }
+    .card.red { border-color:#b91c1c; color:#b91c1c; }
+    .card.black { border-color:#111827; color:#111827; }
+    .card .corner{
+      font-size:13px;
+      font-weight:700;
+    }
+    .card .corner.bottom{
+      transform:rotate(180deg);
+      align-self:flex-end;
+    }
+    .card .suit{
+      position:absolute;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      font-size:24px;
+    }
+    .card.back{
+      background:repeating-linear-gradient(
+        45deg,
+        #0f172a 0, #0f172a 4px,
+        #1e293b 4px, #1e293b 8px
+      );
+      border-color:#0f172a;
+      color:#0f172a;
+    }
+
+    .score-box{
+      font-size:12px;
+      color:#e5e7eb;
+      margin-top:4px;
+    }
+    .score-box span{
+      font-weight:600;
+    }
+    .score-box.bust span{color:#fecaca;}
+    .score-box.ok span{color:#bbf7d0;}
+
+    .message{
+      margin-top:8px;
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:13px;
+      background:rgba(15,23,42,0.9);
+      border:1px dashed rgba(148,163,184,0.8);
+    }
+    .message strong{color:#facc15;}
+
+    .history{
+      margin-top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      font-size:12px;
+      color:#d1fae5;
+    }
+    .hist-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      padding:6px 8px;
+      border-radius:10px;
+      background:rgba(6,78,59,0.9);
+      border:1px solid rgba(22,163,74,0.8);
+    }
+    .hist-summary{
+      font-size:12px;
+    }
+    .hist-meta{
+      color:#a7f3d0;
+      font-size:11px;
+    }
+    footer{
+      margin-top:18px;
+      font-size:11px;
+      color:var(--muted);
+      text-align:center;
+    }
+
+    @media (max-width:640px){
+      .container{margin:12px auto;border-radius:12px;}
+      .hand{min-height:80px;}
+      .card{width:60px;height:86px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <div class="chip"><span class="dot"></span>10 點半 ‧ 撲克牌 Demo</div>
+      <h1>10 點半撲克牌（玩家 vs 莊家）</h1>
+      <p class="lead">
+        A=1，2–10 為牌面數字，J/Q/K=0.5。目標是「不超過 10.5 且點數比對手高」；超過 10.5 即爆掉。
+        可以輸入 Seed 來重現同一局的發牌順序。
+      </p>
+
+      <div class="top-row">
+        <label>
+          Seed（可重現發牌）：
+          <input id="seedInput" type="text" placeholder="留空自動產生" />
+        </label>
+        <button id="genSeedBtn" type="button">產生 Seed</button>
+        <button id="newGameBtn" type="button">開始新局</button>
+        <button id="hitBtn" type="button">要牌 (Hit)</button>
+        <button id="standBtn" type="button" class="secondary">停牌 (Stand)</button>
+        <button id="clearHistBtn" type="button" class="secondary">清除歷史</button>
+      </div>
+
+      <div class="status-bar">
+        <div class="pill">
+          <span class="label">目前 Seed</span>
+          <span class="value" id="seedDisplay">-</span>
+        </div>
+        <div class="pill">
+          <span class="label">局狀態</span>
+          <span class="value" id="stateDisplay">尚未開始</span>
+        </div>
+      </div>
+
+      <div class="table-area" aria-label="game-table">
+        <div class="row">
+          <div class="row-header">
+            <span class="tag-dealer">莊家 Dealer</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="hand" id="dealerHand"></div>
+          <div class="score-box" id="dealerScore">點數：-</div>
+        </div>
+        <hr style="border:none;border-top:1px dashed rgba(22,163,74,0.6);margin:8px 0;" />
+        <div class="row">
+          <div class="row-header">
+            <span class="tag-player">玩家 Player</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="hand" id="playerHand"></div>
+          <div class="score-box" id="playerScore">點數：-</div>
+        </div>
+
+        <div class="message" id="messageBox">
+          按「開始新局」發牌：玩家與莊家各 2 張。玩家可以要牌 (Hit) 或停牌 (Stand)。莊家會自動補牌至至少 7 點或比你高，再判定輸贏。
+        </div>
+      </div>
+
+      <div class="history" id="historyList" aria-label="history">
+        <div class="hist-meta">最近對局（最多 10 局，儲存在本機）</div>
+      </div>
+
+      <footer>此小遊戲僅供娛樂，Seed 只用於重現亂數結果，不會上傳任何資料。</footer>
+    </div>
+  </div>
+
+  <script>
+    // ---- 撲克牌定義 ----
+    const SUITS = ["♠", "♥", "♦", "♣"]; // 黑桃、紅心、方塊、梅花
+    const VALUES = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+
+    function buildDeck() {
+      const deck = [];
+      for (let s = 0; s < SUITS.length; s++) {
+        for (let v = 0; v < VALUES.length; v++) {
+          const value = VALUES[v];
+          deck.push({
+            suit: SUITS[s],
+            value,
+            // 用於顯示：♥♦ 紅色，其餘黑色
+            color: (SUITS[s] === "♥" || SUITS[s] === "♦") ? "red" : "black"
+          });
+        }
+      }
+      return deck;
+    }
+
+    // 10 點半計分：A=1, 2–10=數字, J/Q/K=0.5
+    function cardPoint(card) {
+      const v = card.value;
+      if (v === "A") return 1;
+      if (["J","Q","K"].includes(v)) return 0.5;
+      return parseInt(v,10);
+    }
+    function handPoint(hand) {
+      let sum = 0;
+      hand.forEach(c => sum += cardPoint(c));
+      return sum;
+    }
+
+    // ---- Seeded PRNG（可重現性）----
+    function xmur3(str) {
+      for(var i=0,s=1779033703;i<str.length;i++) {
+        s = Math.imul(s ^ str.charCodeAt(i), 3432918353);
+        s = (s<<13) | (s>>>19);
+      }
+      return function() {
+        s = Math.imul(s ^ (s>>>16), 2246822507);
+        s = Math.imul(s ^ (s>>>13), 3266489909);
+        return (s ^= s>>>16) >>> 0;
+      }
+    }
+    function mulberry32(a) {
+      return function() {
+        var t = (a += 0x6D2B79F5) | 0;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      }
+    }
+    function shuffleDeck(deck, rand) {
+      const a = deck.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function randomSeed() {
+      return Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4);
+    }
+
+    // ---- DOM ----
+    const seedInput = document.getElementById('seedInput');
+    const seedDisplay = document.getElementById('seedDisplay');
+    const stateDisplay = document.getElementById('stateDisplay');
+    const genSeedBtn = document.getElementById('genSeedBtn');
+    const newGameBtn = document.getElementById('newGameBtn');
+    const hitBtn = document.getElementById('hitBtn');
+    const standBtn = document.getElementById('standBtn');
+    const dealerHandEl = document.getElementById('dealerHand');
+    const playerHandEl = document.getElementById('playerHand');
+    const dealerScoreEl = document.getElementById('dealerScore');
+    const playerScoreEl = document.getElementById('playerScore');
+    const messageBox = document.getElementById('messageBox');
+    const historyList = document.getElementById('historyList');
+    const clearHistBtn = document.getElementById('clearHistBtn');
+
+    // ---- 遊戲狀態 ----
+    let deck = [];
+    let deckIndex = 0;
+    let playerHand = [];
+    let dealerHand = [];
+    let gameOver = false;
+    let currentSeed = "";
+    let hideDealerHole = true; // 是否蓋住莊家的一張牌（起手時）
+
+    function initWithSeed(seedStr) {
+      const seedFn = xmur3(seedStr);
+      const rand = mulberry32(seedFn());
+      deck = shuffleDeck(buildDeck(), rand);
+      deckIndex = 0;
+      currentSeed = seedStr;
+      seedDisplay.textContent = seedStr;
+    }
+
+    function dealOne() {
+      if (deckIndex >= deck.length) return null;
+      return deck[deckIndex++];
+    }
+
+    function startGame() {
+      const s = seedInput.value || randomSeed();
+      seedInput.value = s;
+      initWithSeed(s);
+      gameOver = false;
+      hideDealerHole = true;
+      playerHand = [];
+      dealerHand = [];
+
+      // 起手各 2 張
+      playerHand.push(dealOne());
+      dealerHand.push(dealOne());
+      playerHand.push(dealOne());
+      dealerHand.push(dealOne());
+
+      updateUI();
+      stateDisplay.textContent = "進行中（玩家行動）";
+      messageBox.innerHTML = "你可以選擇 <strong>要牌 (Hit)</strong> 或 <strong>停牌 (Stand)</strong>。若點數超過 10.5 即爆牌。";
+      enableControls(true);
+    }
+
+    function enableControls(inGame) {
+      hitBtn.disabled = !inGame || gameOver;
+      standBtn.disabled = !inGame || gameOver;
+    }
+
+    function renderHand(el, hand, hideFirstCard = false) {
+      el.innerHTML = "";
+      hand.forEach((card, idx) => {
+        const div = document.createElement('div');
+        div.className = "card " + (card.color === "red" ? "red" : "black");
+        if (hideFirstCard && idx === 1) { // 蓋牌顯示背面
+          div.className = "card back";
+          el.appendChild(div);
+          return;
+        }
+        const cTop = document.createElement('div');
+        cTop.className = "corner";
+        cTop.textContent = card.value + card.suit;
+        const cBottom = document.createElement('div');
+        cBottom.className = "corner bottom";
+        cBottom.textContent = card.value + card.suit;
+        const suit = document.createElement('div');
+        suit.className = "suit";
+        suit.textContent = card.suit;
+        div.appendChild(cTop);
+        div.appendChild(cBottom);
+        div.appendChild(suit);
+        el.appendChild(div);
+      });
+    }
+
+    function bustText(total) {
+      return total > 10.5 ? "（爆了）" : "";
+    }
+
+    function updateUI() {
+      renderHand(playerHandEl, playerHand, false);
+      renderHand(dealerHandEl, dealerHand, hideDealerHole && !gameOver);
+
+      const pTotal = handPoint(playerHand);
+      let dTotal = hideDealerHole && !gameOver && dealerHand.length > 0
+        ? cardPoint(dealerHand[0]) // 只顯示第一張估計
+        : handPoint(dealerHand);
+
+      playerScoreEl.className = "score-box " + (pTotal>10.5 ? "bust" : "ok");
+      playerScoreEl.innerHTML = `玩家點數：<span>${pTotal.toFixed(1)}</span> ${bustText(pTotal)}`;
+
+      dealerScoreEl.className = "score-box " + (dTotal>10.5 ? "bust" : "ok");
+      if (hideDealerHole && !gameOver) {
+        dealerScoreEl.innerHTML = `莊家點數：<span>?（其中一張顯示中）</span>`;
+      } else {
+        dealerScoreEl.innerHTML = `莊家點數：<span>${dTotal.toFixed(1)}</span> ${bustText(dTotal)}`;
+      }
+    }
+
+    function playerHit() {
+      if (gameOver) return;
+      const card = dealOne();
+      if (!card) return; // Deck exhausted (should never happen in normal play)
+      playerHand.push(card);
+      const pTotal = handPoint(playerHand);
+      if (pTotal > 10.5) {
+        // 玩家爆
+        gameOver = true;
+        hideDealerHole = false;
+        updateUI();
+        endGame("玩家爆牌，莊家勝。", "lose");
+        return;
+      }
+      updateUI();
+      messageBox.innerHTML = `你現在的點數為 <strong>${pTotal.toFixed(1)}</strong>，可以繼續要牌或停牌。`;
+    }
+
+    function playerStand() {
+      if (gameOver) return;
+      hideDealerHole = false;
+      // 莊家自動要牌策略：小於 7 必須要、且小於玩家點數也要，直到 >=7 或 >=玩家 或 爆牌
+      let pTotal = handPoint(playerHand);
+      let dTotal = handPoint(dealerHand);
+      while (dTotal < 7 || (dTotal < pTotal && dTotal <= 10.5 && pTotal <= 10.5)) {
+        const card = dealOne();
+        if (!card) break; // Deck exhausted (should never happen in normal play)
+        dealerHand.push(card);
+        dTotal = handPoint(dealerHand);
+      }
+      gameOver = true;
+      updateUI();
+      // 判定勝負
+      let resultMsg = "";
+      let outcome = "";
+      pTotal = handPoint(playerHand);
+      dTotal = handPoint(dealerHand);
+      if (pTotal > 10.5 && dTotal > 10.5) {
+        resultMsg = "雙方都爆牌，平手。";
+        outcome = "draw";
+      } else if (pTotal > 10.5) {
+        resultMsg = "玩家爆牌，莊家勝。";
+        outcome = "lose";
+      } else if (dTotal > 10.5) {
+        resultMsg = "莊家爆牌，玩家勝！";
+        outcome = "win";
+      } else if (Math.abs(pTotal - dTotal) < 1e-9) {
+        resultMsg = "點數相同，平手。";
+        outcome = "draw";
+      } else if (pTotal > dTotal) {
+        resultMsg = "玩家點數較高，玩家勝！";
+        outcome = "win";
+      } else {
+        resultMsg = "莊家點數較高，莊家勝。";
+        outcome = "lose";
+      }
+      endGame(resultMsg, outcome);
+    }
+
+    // 結束遊戲，寫歷史
+    const HIST_KEY = "tenHalf_history_v1";
+    function endGame(message, outcome) {
+      const pTotal = handPoint(playerHand);
+      const dTotal = handPoint(dealerHand);
+      messageBox.innerHTML = `<strong>結果：</strong>${message} 玩家：${pTotal.toFixed(1)}，莊家：${dTotal.toFixed(1)}。`;
+      stateDisplay.textContent = `已結束（${outcome === "win" ? "玩家勝" : outcome === "lose" ? "莊家勝" : "平手"}）`;
+      enableControls(false);
+      // 儲存歷史
+      try {
+        const entry = {
+          ts: Date.now(),
+          seed: currentSeed,
+          pTotal,
+          dTotal,
+          outcome
+        };
+        const arr = loadHistory();
+        arr.unshift(entry);
+        while (arr.length > 10) arr.pop();
+        localStorage.setItem(HIST_KEY, JSON.stringify(arr));
+        renderHistory();
+      } catch(e){}
+    }
+
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(HIST_KEY);
+        if (!raw) return [];
+        return JSON.parse(raw);
+      } catch(e){ return []; }
+    }
+    function clearHistory() {
+      localStorage.removeItem(HIST_KEY);
+      renderHistory();
+    }
+    function renderHistory() {
+      // 先清掉原本 hist-meta 之後的東西
+      const nodes = Array.from(historyList.querySelectorAll(".hist-item"));
+      nodes.forEach(n => n.remove());
+      const history = loadHistory();
+      if (history.length === 0) {
+        const div = document.createElement("div");
+        div.className = "hist-item";
+        div.innerHTML = `<div class="hist-summary">尚無對局紀錄</div>`;
+        historyList.appendChild(div);
+        return;
+      }
+      history.forEach(h => {
+        const div = document.createElement("div");
+        div.className = "hist-item";
+        const label = h.outcome === "win" ? "玩家勝" :
+                      h.outcome === "lose" ? "莊家勝" : "平手";
+        const color = h.outcome === "win" ? "#bbf7d0" :
+                      h.outcome === "lose" ? "#fecaca" : "#e5e7eb";
+        div.innerHTML = `
+          <div>
+            <div class="hist-summary" style="color:${color}">
+              [${label}] 玩家 ${h.pTotal.toFixed(1)} vs 莊家 ${h.dTotal.toFixed(1)}
+            </div>
+            <div class="hist-meta">
+              Seed: ${h.seed} ‧ ${new Date(h.ts).toLocaleString()}
+            </div>
+          </div>
+        `;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "secondary";
+        btn.textContent = "重現";
+        btn.onclick = () => {
+          seedInput.value = h.seed;
+          initWithSeed(h.seed);
+          // 為了簡單，直接重新發一局
+          startGame();
+        };
+        div.appendChild(btn);
+        historyList.appendChild(div);
+      });
+    }
+
+    // ---- 事件綁定 ----
+    genSeedBtn.addEventListener("click", () => {
+      const s = randomSeed();
+      seedInput.value = s;
+      seedDisplay.textContent = s;
+    });
+    newGameBtn.addEventListener("click", () => {
+      startGame();
+    });
+    hitBtn.addEventListener("click", () => {
+      playerHit();
+    });
+    standBtn.addEventListener("click", () => {
+      playerStand();
+    });
+    clearHistBtn.addEventListener("click", () => {
+      if (confirm("確定要清除本機所有對局歷史？")) clearHistory();
+    });
+
+    // ctrl/meta + n 快速開新局, ctrl/meta + h 要牌, ctrl/meta + s 停牌
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        if (e.key.toLowerCase() === "n") {
+          e.preventDefault(); startGame();
+        }
+        if (e.key.toLowerCase() === "h") {
+          e.preventDefault(); playerHit();
+        }
+        if (e.key.toLowerCase() === "s") {
+          e.preventDefault(); playerStand();
+        }
+      }
+    });
+
+    // 初始化
+    renderHistory();
+    enableControls(false);
+  </script>
+</body>
+</html>
