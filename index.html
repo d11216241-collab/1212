@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>塔羅牌占卜 - Tarot Reading</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .controls {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input[type="text"],
+        select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        button:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #764ba2;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #653a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .cards-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-result {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card-position {
+            font-size: 0.9em;
+            color: #764ba2;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .card-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .card-orientation {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .upright {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .reversed {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .card-meaning {
+            color: #555;
+            line-height: 1.8;
+        }
+        
+        .reading-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .reading-summary h3 {
+            margin-bottom: 10px;
+        }
+        
+        .seed-info {
+            background: #f5f7fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .seed-info strong {
+            color: #667eea;
+        }
+        
+        .history {
+            margin-top: 30px;
+        }
+        
+        .history-item {
+            background: #f5f7fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid #764ba2;
+        }
+        
+        .history-item:hover {
+            background: #e8ecf1;
+            transform: translateX(5px);
+        }
+        
+        .history-item-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .history-item-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .copy-notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        
+        .copy-notification.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .cards-display {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔮 塔羅牌占卜</h1>
+            <p class="subtitle">探索過去、現在與未來的奧秘</p>
+            <p style="margin-top: 10px; color: #666; font-size: 0.9em;">
+                使用大阿爾克那（Major Arcana）22張牌進行占卜。選擇牌陣、設定種子（可選），開始您的占卜之旅。
+            </p>
+        </header>
+        
+        <div class="section">
+            <h2 class="section-title">占卜設定</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="spread-select">選擇牌陣：</label>
+                    <select id="spread-select">
+                        <option value="single">單張牌 (Single Card)</option>
+                        <option value="three">三張牌 (Past / Present / Future)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="seed-input">種子 (Seed) - 可選，留空將自動產生：</label>
+                    <input type="text" id="seed-input" placeholder="輸入種子或留空自動產生">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="allow-reversed" checked>
+                    <label for="allow-reversed">允許逆位牌（50%機率）</label>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-primary" id="shuffle-btn">🎲 洗牌 / 產生種子</button>
+                    <button class="btn-secondary" id="draw-btn" disabled>🃏 抽牌</button>
+                    <button class="btn-outline" id="share-btn" style="display:none;">📋 複製分享連結</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results" id="results">
+            <div class="section">
+                <h2 class="section-title">占卜結果</h2>
+                
+                <div class="seed-info">
+                    <strong>種子 (Seed):</strong> <span id="current-seed"></span>
+                </div>
+                
+                <div class="cards-display" id="cards-display"></div>
+                
+                <div class="reading-summary">
+                    <h3>綜合解讀</h3>
+                    <p id="reading-interpretation"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section history">
+            <h2 class="section-title">歷史紀錄</h2>
+            <div id="history-list">
+                <p style="color: #999;">暫無歷史紀錄</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="copy-notification" id="copy-notification">
+        ✓ 已複製到剪貼簿！
+    </div>
+    
+    <script>
+        // ===== DATA: Major Arcana Cards =====
+        const majorArcana = [
+            {
+                id: 0,
+                name: "愚者",
+                keywords: ["新開始", "冒險", "純真"],
+                upright: "新的開始、自由的精神、冒險的勇氣。保持開放的心態迎接未知。",
+                reversed: "魯莽行為、缺乏計劃、逃避責任。需要更謹慎地評估風險。"
+            },
+            {
+                id: 1,
+                name: "魔術師",
+                keywords: ["創造力", "行動", "技能"],
+                upright: "掌握資源、化夢想為現實、運用才能。擁有實現目標的能力。",
+                reversed: "濫用才能、缺乏方向、操縱他人。需要檢視自己的意圖。"
+            },
+            {
+                id: 2,
+                name: "女祭司",
+                keywords: ["直覺", "神秘", "內在智慧"],
+                upright: "傾聽內心聲音、靈性成長、隱藏的知識。相信你的直覺。",
+                reversed: "忽視直覺、秘密被揭露、內在衝突。需要重新連結內在自我。"
+            },
+            {
+                id: 3,
+                name: "皇后",
+                keywords: ["豐饒", "滋養", "創造"],
+                upright: "豐盛、母性關懷、創造力綻放。享受生命的美好與富足。",
+                reversed: "依賴他人、創造力受阻、過度保護。需要找回自主性。"
+            },
+            {
+                id: 4,
+                name: "皇帝",
+                keywords: ["權威", "結構", "穩定"],
+                upright: "建立秩序、領導能力、穩定基礎。以智慧統御全局。",
+                reversed: "專制獨裁、缺乏彈性、控制慾強。需要學習放手與信任。"
+            },
+            {
+                id: 5,
+                name: "教皇",
+                keywords: ["傳統", "教導", "精神指引"],
+                upright: "遵循傳統、尋求指引、精神學習。從智慧中找到方向。",
+                reversed: "挑戰權威、打破常規、獨立思考。勇於走自己的路。"
+            },
+            {
+                id: 6,
+                name: "戀人",
+                keywords: ["選擇", "關係", "和諧"],
+                upright: "深刻的連結、重要的選擇、和諧關係。聆聽心的聲音做決定。",
+                reversed: "價值觀衝突、關係失衡、艱難抉擇。需要釐清真正的需求。"
+            },
+            {
+                id: 7,
+                name: "戰車",
+                keywords: ["意志力", "控制", "勝利"],
+                upright: "克服障礙、堅定意志、邁向成功。保持專注達成目標。",
+                reversed: "失去控制、方向迷失、侵略性。需要重新調整方向。"
+            },
+            {
+                id: 8,
+                name: "力量",
+                keywords: ["勇氣", "耐心", "內在力量"],
+                upright: "溫柔的力量、克服恐懼、內在勇氣。以愛與智慧面對挑戰。",
+                reversed: "懷疑自我、缺乏信心、內在掙扎。需要重建自信心。"
+            },
+            {
+                id: 9,
+                name: "隱者",
+                keywords: ["內省", "獨處", "智慧"],
+                upright: "內在探索、尋求真理、靈性成長。享受獨處帶來的洞察。",
+                reversed: "孤立無援、逃避現實、過度隱退。需要重新連結外界。"
+            },
+            {
+                id: 10,
+                name: "命運之輪",
+                keywords: ["改變", "循環", "命運"],
+                upright: "生命的轉折、好運降臨、順應變化。接受生命的循環。",
+                reversed: "厄運纏身、抗拒改變、失去控制。學習在變動中找到平衡。"
+            },
+            {
+                id: 11,
+                name: "正義",
+                keywords: ["公平", "真相", "因果"],
+                upright: "公正判決、因果報應、尋求真相。以公正之心行事。",
+                reversed: "不公平待遇、逃避責任、偏見。需要正視自己的行為。"
+            },
+            {
+                id: 12,
+                name: "倒吊人",
+                keywords: ["犧牲", "等待", "新視角"],
+                upright: "放下執著、換個角度、等待時機。在暫停中獲得智慧。",
+                reversed: "無謂犧牲、拖延不決、受困思維。需要打破僵局。"
+            },
+            {
+                id: 13,
+                name: "死神",
+                keywords: ["轉變", "結束", "重生"],
+                upright: "重大轉變、結束與開始、蛻變新生。擁抱改變迎接新生。",
+                reversed: "抗拒改變、停滯不前、恐懼轉變。需要放下過去。"
+            },
+            {
+                id: 14,
+                name: "節制",
+                keywords: ["平衡", "和諧", "調和"],
+                upright: "找到平衡、耐心等待、和諧共處。在極端中尋求中道。",
+                reversed: "失去平衡、過度放縱、缺乏耐心。需要重新調整步調。"
+            },
+            {
+                id: 15,
+                name: "惡魔",
+                keywords: ["束縛", "誘惑", "執著"],
+                upright: "被束縛、物質執著、負面模式。認清束縛才能獲得自由。",
+                reversed: "掙脫束縛、克服成癮、釋放恐懼。開始邁向自由之路。"
+            },
+            {
+                id: 16,
+                name: "塔",
+                keywords: ["突變", "崩解", "頓悟"],
+                upright: "突如其來的改變、信念崩塌、劇變。在混亂中尋找真相。",
+                reversed: "逃過一劫、延遲的災難、內在動盪。雖然痛苦但能帶來成長。"
+            },
+            {
+                id: 17,
+                name: "星星",
+                keywords: ["希望", "靈感", "療癒"],
+                upright: "重燃希望、靈性指引、內在平靜。相信未來會更好。",
+                reversed: "失去信心、幻滅感、缺乏方向。需要重新點燃內在之光。"
+            },
+            {
+                id: 18,
+                name: "月亮",
+                keywords: ["幻象", "直覺", "潛意識"],
+                upright: "面對恐懼、探索潛意識、直覺指引。事情並非表面所見。",
+                reversed: "困惑消散、釋放恐懼、真相顯現。逐漸看清事實真相。"
+            },
+            {
+                id: 19,
+                name: "太陽",
+                keywords: ["成功", "喜悅", "活力"],
+                upright: "成功達成、喜悅洋溢、充滿活力。享受生命的光明與溫暖。",
+                reversed: "暫時挫折、樂觀受阻、過度自信。陽光即將穿破烏雲。"
+            },
+            {
+                id: 20,
+                name: "審判",
+                keywords: ["覺醒", "重生", "反省"],
+                upright: "內在覺醒、重新開始、寬恕過去。是時候做出重大決定了。",
+                reversed: "自我懷疑、逃避審視、害怕改變。需要誠實面對自己。"
+            },
+            {
+                id: 21,
+                name: "世界",
+                keywords: ["完成", "成就", "整合"],
+                upright: "圓滿達成、旅程完結、整合經驗。慶祝你的成就與成長。",
+                reversed: "未完成、缺乏閉合感、尋求完整。還有最後一步要完成。"
+            }
+        ];
+        
+        // ===== PRNG Implementation =====
+        // xmur3 hash function to create seed from string
+        function xmur3(str) {
+            let h = 1779033703 ^ str.length;
+            for(let i = 0; i < str.length; i++) {
+                h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+                h = h << 13 | h >>> 19;
+            }
+            return function() {
+                h = Math.imul(h ^ h >>> 16, 2246822507);
+                h = Math.imul(h ^ h >>> 13, 3266489909);
+                return (h ^= h >>> 16) >>> 0;
+            };
+        }
+        
+        // mulberry32 PRNG
+        function mulberry32(a) {
+            return function() {
+                let t = a += 0x6D2B79F5;
+                t = Math.imul(t ^ t >>> 15, t | 1);
+                t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            };
+        }
+        
+        // Initialize PRNG with seed
+        function initPRNG(seed) {
+            const seedGen = xmur3(seed);
+            return mulberry32(seedGen());
+        }
+        
+        // Fisher-Yates shuffle using PRNG
+        function shuffleArray(array, rng) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(rng() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+        
+        // ===== State Management =====
+        let currentSeed = '';
+        let isShuffled = false;
+        let currentReading = null;
+        
+        // ===== DOM Elements =====
+        const spreadSelect = document.getElementById('spread-select');
+        const seedInput = document.getElementById('seed-input');
+        const allowReversedCheckbox = document.getElementById('allow-reversed');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const drawBtn = document.getElementById('draw-btn');
+        const shareBtn = document.getElementById('share-btn');
+        const resultsDiv = document.getElementById('results');
+        const cardsDisplay = document.getElementById('cards-display');
+        const currentSeedSpan = document.getElementById('current-seed');
+        const readingInterpretation = document.getElementById('reading-interpretation');
+        const historyList = document.getElementById('history-list');
+        const copyNotification = document.getElementById('copy-notification');
+        
+        // ===== Spread Definitions =====
+        const spreads = {
+            single: {
+                name: '單張牌',
+                positions: ['當前狀態']
+            },
+            three: {
+                name: '三張牌',
+                positions: ['過去 (Past)', '現在 (Present)', '未來 (Future)']
+            }
+        };
+        
+        // ===== Generate Seed =====
+        function generateSeed() {
+            const timestamp = Date.now();
+            const random = Math.floor(Math.random() * 1000000);
+            return `${timestamp}-${random}`;
+        }
+        
+        // ===== Shuffle Button Handler =====
+        shuffleBtn.addEventListener('click', function() {
+            let seed = seedInput.value.trim();
+            if (!seed) {
+                seed = generateSeed();
+                seedInput.value = seed;
+            }
+            currentSeed = seed;
+            isShuffled = true;
+            drawBtn.disabled = false;
+            
+            showNotification('✓ 洗牌完成！種子已設定');
+        });
+        
+        // ===== Draw Cards =====
+        function drawCards() {
+            const spreadType = spreadSelect.value;
+            const spread = spreads[spreadType];
+            const numCards = spread.positions.length;
+            const allowReversed = allowReversedCheckbox.checked;
+            
+            // Initialize PRNG with seed
+            const rng = initPRNG(currentSeed);
+            
+            // Shuffle deck
+            const shuffledDeck = shuffleArray(majorArcana, rng);
+            
+            // Draw cards
+            const drawnCards = [];
+            for (let i = 0; i < numCards; i++) {
+                const card = shuffledDeck[i];
+                const isReversed = allowReversed && rng() < 0.5;
+                drawnCards.push({
+                    card: card,
+                    position: spread.positions[i],
+                    orientation: isReversed ? 'reversed' : 'upright'
+                });
+            }
+            
+            return {
+                spread: spread.name,
+                spreadType: spreadType,
+                cards: drawnCards,
+                seed: currentSeed,
+                allowReversed: allowReversed,
+                timestamp: new Date().toISOString()
+            };
+        }
+        
+        // ===== Display Results =====
+        function displayResults(reading) {
+            // Clear previous results
+            cardsDisplay.innerHTML = '';
+            
+            // Display seed
+            currentSeedSpan.textContent = reading.seed;
+            
+            // Display cards
+            reading.cards.forEach(cardData => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card-result';
+                
+                const meaning = cardData.orientation === 'upright' 
+                    ? cardData.card.upright 
+                    : cardData.card.reversed;
+                
+                const orientationText = cardData.orientation === 'upright' ? '正位' : '逆位';
+                const orientationClass = cardData.orientation === 'upright' ? 'upright' : 'reversed';
+                
+                cardDiv.innerHTML = `
+                    <div class="card-position">${cardData.position}</div>
+                    <div class="card-name">${cardData.card.name}</div>
+                    <div class="card-orientation ${orientationClass}">${orientationText}</div>
+                    <div class="card-meaning">${meaning}</div>
+                `;
+                
+                cardsDisplay.appendChild(cardDiv);
+            });
+            
+            // Generate interpretation
+            const interpretation = generateInterpretation(reading);
+            readingInterpretation.textContent = interpretation;
+            
+            // Show results
+            resultsDiv.classList.add('show');
+            shareBtn.style.display = 'inline-block';
+            
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // ===== Generate Interpretation =====
+        function generateInterpretation(reading) {
+            if (reading.spreadType === 'single') {
+                const card = reading.cards[0];
+                const orientation = card.orientation === 'upright' ? '正位' : '逆位';
+                return `你抽到了${orientation}的「${card.card.name}」。${card.orientation === 'upright' ? card.card.upright : card.card.reversed}`;
+            } else {
+                const past = reading.cards[0];
+                const present = reading.cards[1];
+                const future = reading.cards[2];
+                
+                return `過去的「${past.card.name}」顯示了${past.orientation === 'upright' ? '正面的影響' : '需要克服的課題'}。現在的「${present.card.name}」代表當前的狀態與挑戰。未來的「${future.card.name}」指引你前進的方向。這三張牌共同揭示了一段完整的旅程，從過去的經驗，經由當下的抉擇，通往未來的可能性。`;
+            }
+        }
+        
+        // ===== Draw Button Handler =====
+        drawBtn.addEventListener('click', function() {
+            if (!isShuffled) {
+                alert('請先點擊「洗牌 / 產生種子」按鈕！');
+                return;
+            }
+            
+            currentReading = drawCards();
+            displayResults(currentReading);
+            saveToHistory(currentReading);
+            updateHistoryDisplay();
+        });
+        
+        // ===== Share Button Handler =====
+        shareBtn.addEventListener('click', function() {
+            if (!currentReading) return;
+            
+            const params = new URLSearchParams();
+            params.set('seed', currentReading.seed);
+            params.set('spread', currentReading.spreadType);
+            params.set('reversed', currentReading.allowReversed ? '1' : '0');
+            
+            const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                showNotification('✓ 分享連結已複製到剪貼簿！');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = shareUrl;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showNotification('✓ 分享連結已複製到剪貼簿！');
+            });
+        });
+        
+        // ===== Show Notification =====
+        function showNotification(message) {
+            copyNotification.textContent = message;
+            copyNotification.classList.add('show');
+            setTimeout(() => {
+                copyNotification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // ===== History Management =====
+        function saveToHistory(reading) {
+            let history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+            history.unshift(reading);
+            
+            // Keep only last 10 readings
+            if (history.length > 10) {
+                history = history.slice(0, 10);
+            }
+            
+            localStorage.setItem('tarotHistory', JSON.stringify(history));
+        }
+        
+        function loadHistory() {
+            return JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+        }
+        
+        function updateHistoryDisplay() {
+            const history = loadHistory();
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="color: #999;">暫無歷史紀錄</p>';
+                return;
+            }
+            
+            historyList.innerHTML = '';
+            history.forEach((reading, index) => {
+                const date = new Date(reading.timestamp);
+                const dateStr = date.toLocaleString('zh-TW');
+                
+                const cardNames = reading.cards.map(c => c.card.name).join(', ');
+                
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.setAttribute('tabindex', '0');
+                historyItem.innerHTML = `
+                    <div class="history-item-title">${reading.spread} - ${cardNames}</div>
+                    <div class="history-item-details">
+                        種子: ${reading.seed} | 時間: ${dateStr}
+                    </div>
+                `;
+                
+                historyItem.addEventListener('click', () => replayReading(reading));
+                historyItem.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        replayReading(reading);
+                    }
+                });
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        function replayReading(reading) {
+            // Set up the controls to match the reading
+            seedInput.value = reading.seed;
+            spreadSelect.value = reading.spreadType;
+            allowReversedCheckbox.checked = reading.allowReversed;
+            
+            // Set current seed and mark as shuffled
+            currentSeed = reading.seed;
+            isShuffled = true;
+            drawBtn.disabled = false;
+            
+            // Display the reading
+            currentReading = reading;
+            displayResults(reading);
+            
+            showNotification('✓ 已回放歷史占卜');
+        }
+        
+        // ===== URL Parameter Handling =====
+        function loadFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const seed = params.get('seed');
+            const spread = params.get('spread');
+            const reversed = params.get('reversed');
+            
+            if (seed) {
+                seedInput.value = seed;
+                currentSeed = seed;
+            }
+            
+            if (spread && spreads[spread]) {
+                spreadSelect.value = spread;
+            }
+            
+            if (reversed !== null) {
+                allowReversedCheckbox.checked = reversed === '1';
+            }
+            
+            // If all parameters are present, auto-shuffle and draw
+            if (seed && spread) {
+                isShuffled = true;
+                drawBtn.disabled = false;
+                
+                // Auto-draw after a short delay
+                setTimeout(() => {
+                    drawBtn.click();
+                }, 500);
+            }
+        }
+        
+        // ===== Keyboard Navigation =====
+        document.addEventListener('keydown', function(e) {
+            // Alt+S for shuffle
+            if (e.altKey && e.key === 's') {
+                e.preventDefault();
+                shuffleBtn.click();
+            }
+            // Alt+D for draw
+            if (e.altKey && e.key === 'd') {
+                e.preventDefault();
+                if (!drawBtn.disabled) {
+                    drawBtn.click();
+                }
+            }
+        });
+        
+        // ===== Initialization =====
+        document.addEventListener('DOMContentLoaded', function() {
+            updateHistoryDisplay();
+            loadFromURL();
+        });
+    </script>
+</body>
+</html>
